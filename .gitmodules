@@ -1,0 +1,6 @@
+[submodule "lib/ChibiOS"]
+	path = lib/ChibiOS
+	url = git@github.com:ChibiOS/ChibiOS.git
+[submodule "lib/CMSIS"]
+	path = lib/CMSIS
+	url = git@github.com:ARM-software/CMSIS.git

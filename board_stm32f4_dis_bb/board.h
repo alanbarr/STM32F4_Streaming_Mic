@@ -48,24 +48,28 @@ void boardPhyReset(void);
 }
 #endif
 
+/* All MP45DT02 Pins */
+#define GPIOB_MP45DT02_CLK_PAD      10
+#define GPIOC_MP45DT02_PDM_PAD      3
 
-#define GPIOA_LAN8720_REFCLK    1
-#define GPIOA_LAN8720_MDIO      2
-#define GPIOA_LAN8720_CRS_DV    7
-#define GPIOB_LAN8720_TXEN      11
-#define GPIOB_LAN8720_TXD0      12
-#define GPIOB_LAN8720_TXD1      13
-#define GPIOC_LAN8720_MDC       1
-#define GPIOC_LAN8720_RXD0      4
-#define GPIOC_LAN8720_RXD1      5
-#define GPIOE_LAN8720_NRST      2
+/* All LAN8720 Pins */
+#define GPIOA_LAN8720_REFCLK        1
+#define GPIOA_LAN8720_MDIO          2
+#define GPIOA_LAN8720_CRS_DV        7
+#define GPIOB_LAN8720_TXEN          11
+#define GPIOB_LAN8720_TXD0          12
+#define GPIOB_LAN8720_TXD1          13
+#define GPIOC_LAN8720_MDC           1
+#define GPIOC_LAN8720_RXD0          4
+#define GPIOC_LAN8720_RXD1          5
+#define GPIOE_LAN8720_NRST          2
 
-#define LAN8720_ETHADDR_0       0xC2
-#define LAN8720_ETHADDR_1       0xAF
-#define LAN8720_ETHADDR_2       0x51
-#define LAN8720_ETHADDR_3       0x03
-#define LAN8720_ETHADDR_4       0xCF
-#define LAN8720_ETHADDR_5       0x46
+#define LAN8720_ETHADDR_0           0xC2
+#define LAN8720_ETHADDR_1           0xAF
+#define LAN8720_ETHADDR_2           0x51
+#define LAN8720_ETHADDR_3           0x03
+#define LAN8720_ETHADDR_4           0xCF
+#define LAN8720_ETHADDR_5           0x46
 
 /*
  * Setup for STMicroelectronics STM32F4-Discovery board.
@@ -99,7 +103,7 @@ void boardPhyReset(void);
 /*
  * MCU type as defined in the ST header.
  */
-#define STM32F407xx
+#define                             STM32F407xx
 
 /*
  * IO pins assignments.
@@ -131,7 +135,7 @@ void boardPhyReset(void);
 #define GPIOB_PIN7                  7
 #define GPIOB_PIN8                  8
 #define GPIOB_SDA                   9
-#define GPIOB_CLK_IN                10
+//#define GPIOB_CLK_IN                10
 //#define GPIOB_PIN11                 11
 //#define GPIOB_PIN12                 12
 //#define GPIOB_PIN13                 13
@@ -141,7 +145,7 @@ void boardPhyReset(void);
 #define GPIOC_OTG_FS_POWER_ON       0
 //#define GPIOC_PIN1                  1
 #define GPIOC_PIN2                  2
-#define GPIOC_PDM_OUT               3
+//#define GPIOC_PDM_OUT               3
 //#define GPIOC_PIN4                  4
 //#define GPIOC_PIN5                  5
 #define GPIOC_PIN6                  6
@@ -409,7 +413,7 @@ void boardPhyReset(void);
  * PB7  - PIN7                      (input pullup).
  * PB8  - PIN8                      (input pullup).
  * PB9  - SDA                       (alternate 4).
- * PB10 - CLK_IN                    (input pullup).
+ * PB10 - MP45DT02_CLK              (alternate 5).
  * PB11 - LAN8720_TXEN              (alternate 11).
  * PB12 - LAN8720_TXD0              (alternate 11).
  * PB13 - LAN8720_TXD1              (alternate 11).
@@ -426,7 +430,7 @@ void boardPhyReset(void);
                                      PIN_MODE_INPUT(GPIOB_PIN7) |              \
                                      PIN_MODE_INPUT(GPIOB_PIN8) |              \
                                      PIN_MODE_ALTERNATE(GPIOB_SDA) |           \
-                                     PIN_MODE_INPUT(GPIOB_CLK_IN) |            \
+                                     PIN_MODE_ALTERNATE(GPIOB_MP45DT02_CLK_PAD) |\
                                      PIN_MODE_ALTERNATE(GPIOB_LAN8720_TXEN) |  \
                                      PIN_MODE_ALTERNATE(GPIOB_LAN8720_TXD0) |  \
                                      PIN_MODE_ALTERNATE(GPIOB_LAN8720_TXD1) |  \
@@ -442,7 +446,7 @@ void boardPhyReset(void);
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN7) |          \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN8) |          \
                                      PIN_OTYPE_OPENDRAIN(GPIOB_SDA) |          \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_CLK_IN) |        \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_MP45DT02_CLK_PAD) |\
                                      PIN_OTYPE_PUSHPULL(GPIOB_LAN8720_TXEN) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOB_LAN8720_TXD0) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOB_LAN8720_TXD1) |  \
@@ -458,7 +462,7 @@ void boardPhyReset(void);
                                      PIN_OSPEED_100M(GPIOB_PIN7) |             \
                                      PIN_OSPEED_100M(GPIOB_PIN8) |             \
                                      PIN_OSPEED_100M(GPIOB_SDA) |              \
-                                     PIN_OSPEED_100M(GPIOB_CLK_IN) |           \
+                                     PIN_OSPEED_100M(GPIOB_MP45DT02_CLK_PAD) | \
                                      PIN_OSPEED_100M(GPIOB_LAN8720_TXEN) |     \
                                      PIN_OSPEED_100M(GPIOB_LAN8720_TXD0) |     \
                                      PIN_OSPEED_100M(GPIOB_LAN8720_TXD1) |     \
@@ -474,7 +478,7 @@ void boardPhyReset(void);
                                      PIN_PUPDR_PULLUP(GPIOB_PIN7) |            \
                                      PIN_PUPDR_PULLUP(GPIOB_PIN8) |            \
                                      PIN_PUPDR_FLOATING(GPIOB_SDA) |           \
-                                     PIN_PUPDR_PULLUP(GPIOB_CLK_IN) |          \
+                                     PIN_PUPDR_FLOATING(GPIOB_MP45DT02_CLK_PAD) |\
                                      PIN_PUPDR_FLOATING(GPIOB_LAN8720_TXEN) |  \
                                      PIN_PUPDR_FLOATING(GPIOB_LAN8720_TXD0) |  \
                                      PIN_PUPDR_FLOATING(GPIOB_LAN8720_TXD1) |  \
@@ -490,7 +494,7 @@ void boardPhyReset(void);
                                      PIN_ODR_HIGH(GPIOB_PIN7) |                \
                                      PIN_ODR_HIGH(GPIOB_PIN8) |                \
                                      PIN_ODR_HIGH(GPIOB_SDA) |                 \
-                                     PIN_ODR_HIGH(GPIOB_CLK_IN) |              \
+                                     PIN_ODR_HIGH(GPIOB_MP45DT02_CLK_PAD) |    \
                                      PIN_ODR_HIGH(GPIOB_LAN8720_TXEN) |        \
                                      PIN_ODR_HIGH(GPIOB_LAN8720_TXD0) |        \
                                      PIN_ODR_HIGH(GPIOB_LAN8720_TXD1) |        \
@@ -506,7 +510,7 @@ void boardPhyReset(void);
                                      PIN_AFIO_AF(GPIOB_PIN7, 0))
 #define VAL_GPIOB_AFRH              (PIN_AFIO_AF(GPIOB_PIN8, 0) |              \
                                      PIN_AFIO_AF(GPIOB_SDA, 4) |               \
-                                     PIN_AFIO_AF(GPIOB_CLK_IN, 0) |            \
+                                     PIN_AFIO_AF(GPIOB_MP45DT02_CLK_PAD, 5) |  \
                                      PIN_AFIO_AF(GPIOB_LAN8720_TXEN, 11) |     \
                                      PIN_AFIO_AF(GPIOB_LAN8720_TXD0, 11) |     \
                                      PIN_AFIO_AF(GPIOB_LAN8720_TXD1, 11) |     \
@@ -519,7 +523,7 @@ void boardPhyReset(void);
  * PC0  - OTG_FS_POWER_ON           (output pushpull maximum).
  * PC1  - LAN8720_MDC               (alternate 11).
  * PC2  - PIN2                      (input pullup).
- * PC3  - PDM_OUT                   (input pullup).
+ * PC3  - MP45DT02_PDM              (alternate 5).
  * PC4  - LAN8720_RXD0              (alternate 11).
  * PC5  - LAN8720_RXD1              (alternate 11).
  * PC6  - PIN6                      (input pullup).
@@ -536,7 +540,7 @@ void boardPhyReset(void);
 #define VAL_GPIOC_MODER             (PIN_MODE_OUTPUT(GPIOC_OTG_FS_POWER_ON) |  \
                                      PIN_MODE_ALTERNATE(GPIOC_LAN8720_MDC) |   \
                                      PIN_MODE_INPUT(GPIOC_PIN2) |              \
-                                     PIN_MODE_INPUT(GPIOC_PDM_OUT) |           \
+                                     PIN_MODE_ALTERNATE(GPIOC_MP45DT02_PDM_PAD) |\
                                      PIN_MODE_ALTERNATE(GPIOC_LAN8720_RXD0) |  \
                                      PIN_MODE_ALTERNATE(GPIOC_LAN8720_RXD1) |  \
                                      PIN_MODE_INPUT(GPIOC_PIN6) |              \
@@ -552,7 +556,7 @@ void boardPhyReset(void);
 #define VAL_GPIOC_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOC_OTG_FS_POWER_ON) |\
                                      PIN_OTYPE_PUSHPULL(GPIOC_LAN8720_MDC) |   \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN2) |          \
-                                     PIN_OTYPE_PUSHPULL(GPIOC_PDM_OUT) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_MP45DT02_PDM_PAD) |\
                                      PIN_OTYPE_PUSHPULL(GPIOC_LAN8720_RXD0) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOC_LAN8720_RXD1) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN6) |          \
@@ -568,7 +572,7 @@ void boardPhyReset(void);
 #define VAL_GPIOC_OSPEEDR           (PIN_OSPEED_100M(GPIOC_OTG_FS_POWER_ON) |  \
                                      PIN_OSPEED_100M(GPIOC_LAN8720_MDC) |      \
                                      PIN_OSPEED_100M(GPIOC_PIN2) |             \
-                                     PIN_OSPEED_100M(GPIOC_PDM_OUT) |          \
+                                     PIN_OSPEED_100M(GPIOC_MP45DT02_PDM_PAD) | \
                                      PIN_OSPEED_100M(GPIOC_LAN8720_RXD0) |     \
                                      PIN_OSPEED_100M(GPIOC_LAN8720_RXD1) |     \
                                      PIN_OSPEED_100M(GPIOC_PIN6) |             \
@@ -584,7 +588,7 @@ void boardPhyReset(void);
 #define VAL_GPIOC_PUPDR             (PIN_PUPDR_FLOATING(GPIOC_OTG_FS_POWER_ON) |\
                                      PIN_PUPDR_FLOATING(GPIOC_LAN8720_MDC) |   \
                                      PIN_PUPDR_PULLUP(GPIOC_PIN2) |            \
-                                     PIN_PUPDR_PULLUP(GPIOC_PDM_OUT) |         \
+                                     PIN_PUPDR_FLOATING(GPIOC_MP45DT02_PDM_PAD) |\
                                      PIN_PUPDR_FLOATING(GPIOC_LAN8720_RXD0) |  \
                                      PIN_PUPDR_FLOATING(GPIOC_LAN8720_RXD1) |  \
                                      PIN_PUPDR_FLOATING(GPIOC_PIN6) |          \
@@ -600,7 +604,7 @@ void boardPhyReset(void);
 #define VAL_GPIOC_ODR               (PIN_ODR_HIGH(GPIOC_OTG_FS_POWER_ON) |     \
                                      PIN_ODR_HIGH(GPIOC_LAN8720_MDC) |         \
                                      PIN_ODR_HIGH(GPIOC_PIN2) |                \
-                                     PIN_ODR_HIGH(GPIOC_PDM_OUT) |             \
+                                     PIN_ODR_HIGH(GPIOC_MP45DT02_PDM_PAD) |    \
                                      PIN_ODR_HIGH(GPIOC_LAN8720_RXD0) |        \
                                      PIN_ODR_HIGH(GPIOC_LAN8720_RXD1) |        \
                                      PIN_ODR_HIGH(GPIOC_PIN6) |                \
@@ -616,7 +620,7 @@ void boardPhyReset(void);
 #define VAL_GPIOC_AFRL              (PIN_AFIO_AF(GPIOC_OTG_FS_POWER_ON, 0) |   \
                                      PIN_AFIO_AF(GPIOC_LAN8720_MDC, 11) |      \
                                      PIN_AFIO_AF(GPIOC_PIN2, 0) |              \
-                                     PIN_AFIO_AF(GPIOC_PDM_OUT, 0) |           \
+                                     PIN_AFIO_AF(GPIOC_MP45DT02_PDM_PAD, 5) |  \
                                      PIN_AFIO_AF(GPIOC_LAN8720_RXD0, 11) |     \
                                      PIN_AFIO_AF(GPIOC_LAN8720_RXD1, 11) |     \
                                      PIN_AFIO_AF(GPIOC_PIN6, 0) |              \

@@ -22,31 +22,25 @@
 
 void boardPhyReset(void);
 
-/* Eth Pins 
-* STM32F4 Pin  STM32F4 ETH Name                        LAN8720 Name      LAN8720 Pin
-* PA1          ETH_MII _RX_CLK / ETH_RMII _REF_CLK     NINT/REFCLK0      14
-* PA2          ETH _MDIO                               MDIO              12
-* PA7          ETH_MII _RX_DV / ETH_RMII _CRS_DV       CRS_DV/MODE2      11
-* PB11         ETH _MII_TX_EN / ETH _RMII_TX_EN        TXEN              16
-* PB12         ETH _MII_TXD0 / ETH _RMII_TXD0          TXD0              17
-* PB13         ETH _MII_TXD1 / ETH _RMII_TXD1          TXD1              18
-* PC1          ETH _MDC                                MDC               13
-* PC4          ETH_MII_RXD0 / ETH_RMII_RXD0            RXD0/MODE0         8
-* PC5          ETH _MII_RXD1/ ETH _RMII_RXD1           RXD1/MODE1         7
-* PE2          --                                      NRST              15
-*/
+/* Ethernet Pins 
+ *
+ * STM32F4 Pin  STM32F4 ETH Name                        LAN8720 Name      LAN8720 Pin
+ *
+ * PA1          ETH_MII_RX_CLK / ETH_RMII_REF_CLK       NINT/REFCLK0      14
+ * PA2          ETH_MDIO                                MDIO              12
+ * PA7          ETH_MII_RX_DV / ETH_RMII_CRS_DV         CRS_DV/MODE2      11
+ * PB11         ETH_MII_TX_EN / ETH_RMII_TX_EN          TXEN              16
+ * PB12         ETH_MII_TXD0 / ETH_RMII_TXD0            TXD0              17
+ * PB13         ETH_MII_TXD1 / ETH_RMII_TXD1            TXD1              18
+ * PC1          ETH_MDC                                 MDC               13
+ * PC4          ETH_MII_RXD0 / ETH_RMII_RXD0            RXD0/MODE0         8
+ * PC5          ETH_MII_RXD1/ ETH_RMII_RXD1             RXD1/MODE1         7
+ * PE2          --                                      NRST              15 
+ */
+
 #define BOARD_PHY_ID            MII_LAN8720_ID
 #define BOARD_PHY_RMII
 #define BOARD_PHY_RESET         boardPhyReset
-#if 0
-{\
-    do {                                        \
-    palClearPad(GPIOE, GPIOE_LAN8720_NRST);     \
-    chThdSleep(MS2ST(100));                     \
-    palSetPad(GPIOE, GPIOE_LAN8720_NRST);       \
-    } while(0);                                 \
-}
-#endif
 
 /* All MP45DT02 Pins */
 #define GPIOB_MP45DT02_CLK_PAD      10

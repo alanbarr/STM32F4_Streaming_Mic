@@ -101,8 +101,8 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
 }
 #endif
 
-void boardPhyReset(void)
-{
+/* TODO XXX */
+void boardPhyReset(void) {
     uint32_t delay;
     palClearPad(GPIOE, GPIOE_LAN8720_NRST);
 #if 1

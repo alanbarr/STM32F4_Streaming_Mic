@@ -1327,6 +1327,21 @@
                                      PIN_AFIO_AF(GPIOI_PIN14, 0) |             \
                                      PIN_AFIO_AF(GPIOI_PIN15, 0))
 
+#define BOARD_LED_ORANGE_SET()    palSetPad(GPIOD, GPIOD_LED3);
+#define BOARD_LED_ORANGE_CLEAR()  palClearPad(GPIOD, GPIOD_LED3);
+#define BOARD_LED_ORANGE_TOGGLE() palTogglePad(GPIOD, GPIOD_LED3);
+
+#define BOARD_LED_GREEN_SET()     palSetPad(GPIOD, GPIOD_LED4);
+#define BOARD_LED_GREEN_CLEAR()   palClearPad(GPIOD, GPIOD_LED4);
+#define BOARD_LED_GREEN_TOGGLE()  palTogglePad(GPIOD, GPIOD_LED4);
+
+#define BOARD_LED_RED_SET()       palSetPad(GPIOD, GPIOD_LED5);
+#define BOARD_LED_RED_CLEAR()     palClearPad(GPIOD, GPIOD_LED5);
+#define BOARD_LED_RED_TOGGLE()    palTogglePad(GPIOD, GPIOD_LED5);
+
+#define BOARD_LED_BLUE_SET()      palSetPad(GPIOD, GPIOD_LED6);
+#define BOARD_LED_BLUE_CLEAR()    palClearPad(GPIOD, GPIOD_LED6);
+#define BOARD_LED_BLUE_TOGGLE()   palTogglePad(GPIOD, GPIOD_LED6);
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

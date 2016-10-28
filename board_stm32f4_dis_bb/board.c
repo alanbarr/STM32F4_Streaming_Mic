@@ -52,8 +52,8 @@ const PALConfig pal_default_config =
  * @details This initialization must be performed just after stack setup
  *          and before any other initialization.
  */
-void __early_init(void) {
-
+void __early_init(void) 
+{
   stm32_clock_init();
 }
 
@@ -61,8 +61,8 @@ void __early_init(void) {
 /**
  * @brief   SDC card detection.
  */
-bool sdc_lld_is_card_inserted(SDCDriver *sdcp) {
-
+bool sdc_lld_is_card_inserted(SDCDriver *sdcp) 
+{
   (void)sdcp;
   /* TODO: Fill the implementation.*/
   return TRUE;
@@ -71,8 +71,8 @@ bool sdc_lld_is_card_inserted(SDCDriver *sdcp) {
 /**
  * @brief   SDC card write protection detection.
  */
-bool sdc_lld_is_write_protected(SDCDriver *sdcp) {
-
+bool sdc_lld_is_write_protected(SDCDriver *sdcp) 
+{
   (void)sdcp;
   /* TODO: Fill the implementation.*/
   return FALSE;
@@ -83,8 +83,8 @@ bool sdc_lld_is_write_protected(SDCDriver *sdcp) {
 /**
  * @brief   MMC_SPI card detection.
  */
-bool mmc_lld_is_card_inserted(MMCDriver *mmcp) {
-
+bool mmc_lld_is_card_inserted(MMCDriver *mmcp) 
+{
   (void)mmcp;
   /* TODO: Fill the implementation.*/
   return TRUE;
@@ -93,24 +93,28 @@ bool mmc_lld_is_card_inserted(MMCDriver *mmcp) {
 /**
  * @brief   MMC_SPI card write protection detection.
  */
-bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
-
+bool mmc_lld_is_write_protected(MMCDriver *mmcp) 
+{
   (void)mmcp;
   /* TODO: Fill the implementation.*/
   return FALSE;
 }
 #endif
 
-/* TODO XXX */
-void boardPhyReset(void) {
-    uint32_t delay;
+/* I don't think any of ChibiOS default timing mechanisms will be initialised at
+ * the point the board functions will be called.
+ * Just a dumb loop for now. Will do for minimum wait times.  */
+static void boardWait(volatile uint32_t count)
+{
+    while (count--);
+}
+
+void boardPhyReset(void) 
+{
     palClearPad(GPIOE, GPIOE_LAN8720_NRST);
-#if 1
-    for(delay=0; delay<2000000; delay++);
-#else
-    chThdSleep(MS2ST(100));
-#endif
+    boardWait(16800000);
     palSetPad(GPIOE, GPIOE_LAN8720_NRST);
+    boardWait(16800000);
 }
 
 
@@ -118,5 +122,7 @@ void boardPhyReset(void) {
  * @brief   Board-specific initialization code.
  * @todo    Add your board-specific code, if any.
  */
-void boardInit(void) {
+void boardInit(void) 
+{
+
 }

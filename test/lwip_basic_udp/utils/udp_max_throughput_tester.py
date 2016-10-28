@@ -38,7 +38,7 @@ class UdpTest(object):
                  remote_udp_ip,
                  remote_udp_port,
                  payload_length       = 128,
-                 duration             = 3):
+                 duration             = 10):
 
         self.tx_messages            = []
         self.rx_messages            = []
@@ -75,12 +75,6 @@ class UdpTest(object):
                 self.rx_messages.append(data_bytes)
             except socket.error:
                 pass
-
-
-#    def build_tx_timestamps(self):
-#        cur_time = time.time()
-#        self.tx_timestamps = [cur_time + x/self.message_rate
-#            for x in range(0, self.message_rate)]
 
     def run(self):
         started = time.time()

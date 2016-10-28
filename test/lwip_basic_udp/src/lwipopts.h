@@ -39,35 +39,7 @@
 #define __LWIPOPT_H__
 
 #define LWIP_DEBUG
-#if 0
-/* TODO 
- * Seems here is the place to override the fixed constatns in 
- * various/lwipthread.h for ChibiOS lwip threads.
- * Not sure why lwipthread.h is being used at all since IP configuration
- * is highly dependant.
- */
 
-
-/* TODO delete me - inital debug */
-#if defined(LWIP_IPADDR)
-    #error "LWIP_IPADDR defined!"
-#endif
-#if defined (LWIP_ETHADDR_0)
-    #error "LWIP_ETHADDR_0 defined!"
-#endif
-
-#define LWIP_IPADDR(p)      IP4_ADDR(p, 192, 168, 1, 20)
-#define LWIP_GATEWAY(p)     IP4_ADDR(p, 192, 168, 1, 1)
-#define LWIP_NETMASK(p)     IP4_ADDR(p, 255, 255, 255, 0)
-
-#define LWIP_ETHADDR_0      0xC2
-#define LWIP_ETHADDR_1      0xAF
-#define LWIP_ETHADDR_2      0x51
-#define LWIP_ETHADDR_3      0x03
-#define LWIP_ETHADDR_4      0xCF
-#define LWIP_ETHADDR_5      0x46
-
-#endif
 /*
    -----------------------------------------------
    ---------- Platform specific locking ----------
@@ -2152,5 +2124,55 @@
 #ifndef DNS_DEBUG
 #define DNS_DEBUG                       LWIP_DBG_OFF
 #endif
+
+/*******************************************************************************/
+/* STM32 Performance Improvements */
+/*******************************************************************************/
+#define LWIP_PLATFORM_BYTESWAP          1
+#define LWIP_PLATFORM_HTONS(HS)         (__builtin_bswap16(HS))
+#define LWIP_PLATFORM_HTONL(HL)         (__builtin_bswap32(HL))
+
+/* Needs STM32_MAC_IP_CHECKSUM_OFFLOAD 3 */
+/**
+ * CHECKSUM_GEN_IP==1: Generate checksums in software for outgoing IP packets.
+ */
+#undef CHECKSUM_GEN_IP
+#define CHECKSUM_GEN_IP                 0
+ 
+/**
+ * CHECKSUM_GEN_UDP==1: Generate checksums in software for outgoing UDP packets.
+ */
+#undef CHECKSUM_GEN_UDP
+#define CHECKSUM_GEN_UDP                0
+ 
+/**
+ * CHECKSUM_GEN_TCP==1: Generate checksums in software for outgoing TCP packets.
+ */
+#undef CHECKSUM_GEN_TCP
+#define CHECKSUM_GEN_TCP                0
+
+/**
+ * CHECKSUM_GEN_ICMP==1: Generate checksums in software for outgoing ICMP packets.
+ */
+#undef CHECKSUM_GEN_ICMP
+#define CHECKSUM_GEN_ICMP               0
+ 
+/**
+ * CHECKSUM_CHECK_IP==1: Check checksums in software for incoming IP packets.
+ */
+#undef CHECKSUM_CHECK_IP
+#define CHECKSUM_CHECK_IP               0
+ 
+/**
+ * CHECKSUM_CHECK_UDP==1: Check checksums in software for incoming UDP packets.
+ */
+#undef CHECKSUM_CHECK_UDP
+#define CHECKSUM_CHECK_UDP              0
+
+/**
+ * CHECKSUM_CHECK_TCP==1: Check checksums in software for incoming TCP packets.
+ */
+#undef CHECKSUM_CHECK_TCP
+#define CHECKSUM_CHECK_TCP              0
 
 #endif /* __LWIPOPT_H__ */

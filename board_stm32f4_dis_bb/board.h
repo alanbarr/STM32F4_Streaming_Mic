@@ -20,8 +20,6 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
-void boardPhyReset(void);
-
 /* Ethernet Pins 
  *
  * STM32F4 Pin  STM32F4 ETH Name                        LAN8720 Name      LAN8720 Pin
@@ -38,9 +36,9 @@ void boardPhyReset(void);
  * PE2          --                                      NRST              15 
  */
 
-#define BOARD_PHY_ID            MII_LAN8720_ID
+#define BOARD_PHY_ID                MII_LAN8720_ID
 #define BOARD_PHY_RMII
-#define BOARD_PHY_RESET         boardPhyReset
+#define BOARD_PHY_RESET             boardPhyReset
 
 /* All MP45DT02 Pins */
 #define GPIOB_MP45DT02_CLK_PAD      10
@@ -74,7 +72,6 @@ void boardPhyReset(void);
  */
 #define BOARD_ST_STM32F4_DISCOVERY
 #define BOARD_NAME                  "STMicroelectronics STM32F4-Discovery w/ BB"
-
 
 /*
  * Board oscillators-related settings.
@@ -1335,7 +1332,8 @@ void boardPhyReset(void);
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void boardInit(void);
+    void boardInit(void);
+    void boardPhyReset(void);
 #ifdef __cplusplus
 }
 #endif

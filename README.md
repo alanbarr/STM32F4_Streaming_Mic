@@ -2,3 +2,9 @@
 
 A much neglected side project involving the STM32F4Discovery (STM32F407 variant)
 and the STM32F4DIS-EXT expansion board.
+
+# Current Status 
+
+Far from being any where near complete.
+Currently just a collection of different tests.
+

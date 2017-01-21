@@ -1,0 +1,75 @@
+D.2 Server
+
+   A minimal server implementation MUST be able to do the following:
+
+     * Implement the following methods: SETUP, TEARDOWN, OPTIONS and
+       either PLAY (for a minimal playback server) or RECORD (for a
+       minimal recording server).  If RECORD is implemented, ANNOUNCE
+       should be implemented as well.
+     * Include the following headers in responses: Connection,
+       Content-Length, Content-Type, Content-Language, Content-Encoding,
+       Transport, Public. The capability to include the Location header
+       should be implemented if the RECORD method is. RTP-compliant
+       implementations should also implement the RTP-Info field.
+     * Parse and respond appropriately to the following headers in
+       requests: Connection, Session, Transport, Require.
+
+   Though not required, the following are highly recommended at the time
+   of publication for practical interoperability with initial
+   implementations and/or to be a "good citizen".
+
+     * Implement RTP/AVP/UDP as a valid transport.
+     * Inclusion of the Server header.
+     * Implement the DESCRIBE method.
+     * Generate SDP session descriptions as defined in Appendix C
+
+     There may be RTSP applications different from those initially
+     envisioned by the contributors to the RTSP specification for which
+     the requirements above do not make sense. Therefore, the
+     recommendations above serve only as guidelines instead of strict
+     requirements.
+################################################################################
+Methods
+
+      method            direction        object     requirement
+      DESCRIBE          C->S             P,S        recommended
+      OPTIONS           C->S, S->C       P,S        required
+                                                    (S->C: optional)
+      PLAY              C->S             P,S        required
+      SETUP             C->S             S          required
+      TEARDOWN          C->S             P,S        required
+################################################################################
+Headers
+
+  Header               type   support   methods
+   Connection           g      req.      all
+   Content-Encoding     e      req.      DESCRIBE, ANNOUNCE
+   Content-Language     e      req.      DESCRIBE, ANNOUNCE
+   Content-Length       e      req.      entity
+   Content-Type         r      req.      entity
+   CSeq                 g      req.      all
+   Public               r      opt.      all
+   Require              R      req.      all
+   RTP-Info             r      req.      PLAY
+   Session              Rr     req.      all but SETUP, OPTIONS
+   Server               r      opt.      all
+   Transport            Rr     req.      SETUP
+
+
+- "g" designates general request headers to be found in both requests and responses
+- "R" designates request headers
+- "r" designates response headers
+- "e" designates entity header fields
+
+Fields marked with "req." in the column labeled "support" MUST be implemented
+by the recipient for a particular method, while fields marked "opt." are
+optional. 
+
+Note that not all fields marked "req." will be sent in every request of this
+type. The "req."  means only that client (for response headers) and server
+(for request headers) MUST implement the fields. 
+
+The last column lists the method for which this header field is meaningful;
+the designation "entity" refers to all methods that return a message body.
+Within this specification, DESCRIBE and GET_PARAMETER fall into this class.
+

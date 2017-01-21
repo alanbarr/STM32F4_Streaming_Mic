@@ -1,3 +1,7 @@
 **/build/
 **/.dep/
 **/output/
+**/__pycache__/
+*.log
+*.wav
+*.png

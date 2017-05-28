@@ -232,7 +232,7 @@ typedef struct {
 
 
 typedef RtspStatus (*rtspTcpTransmit)(RtspClientRx *client,
-                                      const uint8_t *data,
+                                      const char *data,
                                       uint16_t length);
 
 typedef RtspStatus (*rtspSessionControl)(RtspSession *session,

@@ -133,14 +133,21 @@ extern const char * const rtspErrorString[RTSP_ERROR_LAST];
 extern const char * const rtspHeaderStrings[RTSP_HEADER_LAST];
 
 RtspStatus rtspTcpTransmitCallback(RtspClientRx *client,
-                                   const uint8_t *data,
+                                   const char *data,
                                    uint16_t length);
 RtspStatus rtspSessionControlCallback(RtspSession *session,
                                       RtspSessionInstruction instruction);
 RtspStatus parseHeaders(RtspRxBuffer *workBuf, RtspRequest *request);
 
-RtspStatus rtspFindSessionByPath(uint8_t *pathData, 
-                                 uint16_t pathLength,
-                                 RtspSession **session);
+
+RtspStatus rtspSessionCreate(RtspRequest *request,
+                             RtspSession **session);
+RtspStatus rtspSessionFind(RtspRequest *request,
+                           RtspSession **session);
+RtspStatus rtspSessionDestroy(RtspSession *session);
+
+RtspStatus rtspFindResourceByPath(char *pathData,
+                                  uint16_t pathLength,
+                                  RtspResource **resource);
 
 #endif

@@ -103,6 +103,9 @@ include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 include $(BOARD)/board.mk
 include $(CHIBIOS)/os/various/lwip_bindings/lwip.mk
 
+RTSP_PATH=rtsp
+include $(RTSP_PATH)/rtsp.mk
+
 # Define linker script file here
 LDSCRIPT= $(STARTUPLD)/STM32F407xG.ld
 
@@ -124,6 +127,7 @@ CSRC = $(STARTUPSRC) \
        audio/autogen_fir_coeffs.c      \
        rtp/rtp.c                       \
        rtp/rtcp.c                      \
+	   $(RTSP_CSRC)                    \
        utils/debug.c                   \
        mp45dt02_processing.c           \
        time/sntp/sntp.c                \
@@ -168,6 +172,7 @@ INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
          $(CMSIS)/Include \
          audio \
          rtp \
+		 $(RTSP_INC) \
          time/sntp \
          time \
          utils

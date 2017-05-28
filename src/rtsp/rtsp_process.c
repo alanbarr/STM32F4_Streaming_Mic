@@ -244,7 +244,6 @@ static RtspStatus rtspRxProcessPlay(RtspRequest *request)
 {
 
     RtspSession *session = NULL;
-    RtspStatus status = RTSP_ERROR_INTERNAL;
 
     RTSP_TRY_RTN(rtspSessionFind(request, &session));
 
@@ -256,7 +255,6 @@ static RtspStatus rtspRxProcessPlay(RtspRequest *request)
 static RtspStatus rtspRxProcessPause(RtspRequest *request)
 {
     RtspSession *session = NULL;
-    RtspStatus status = RTSP_ERROR_INTERNAL;
 
     RTSP_TRY_RTN(rtspSessionControlCallback(session, RTSP_SESSION_PAUSE));
 
@@ -278,7 +276,6 @@ static RtspStatus rtspRxProcessOptions(RtspRequest *request)
     char *replyBuf = NULL;
     uint16_t replyBufLen = 0;
     RtspStatus status = RTSP_OK;
-    int strLen = 0;
     char *reply = 
         "RTSP/1.0 200 OK"                                RTSP_EOL_STR
         RTSP_SERVER_STRING

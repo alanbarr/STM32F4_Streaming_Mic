@@ -26,8 +26,10 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include "rtsp.h"
 #include "rtsp_internal.h"
 #include "rtsp_buffer.h"
@@ -85,7 +87,8 @@ static RtspStatus parseHeaderTransportPortRange(const RtspRxBuffer *workBuf,
 
     memset(strnum,0,sizeof(strnum));
 
-    while (isdigit(workBuf->buffer[endIndex]) && endIndex < workBuf->lineLength)
+    while (isdigit((int)workBuf->buffer[endIndex]) && 
+           endIndex < workBuf->lineLength)
     {
         endIndex++;
     }
@@ -116,7 +119,8 @@ static RtspStatus parseHeaderTransportPortRange(const RtspRxBuffer *workBuf,
 
     startIndex = endIndex;
 
-    while (isdigit(workBuf->buffer[endIndex]) && endIndex < workBuf->lineLength)
+    while (isdigit((int)workBuf->buffer[endIndex]) &&
+           endIndex < workBuf->lineLength)
     {
         endIndex++;
     }
@@ -254,8 +258,6 @@ static RtspStatus parseHeaderSession(RtspRxBuffer *workBuf,
 static RtspStatus parseHeaderRequire(RtspRxBuffer *workBuf,
                                      RtspRequest *request)
 {
-    uint16_t length = 0;
-
     RTSP_TRY_RTN(rtspRxBufferIncr(workBuf,
                                   BUFM_LINE_INCR,
                                   strlen(rtspHeaderStrings[RTSP_HEADER_REQUIRE])));
@@ -276,7 +278,7 @@ static RtspStatus parseHeaderRequire(RtspRxBuffer *workBuf,
     request->header.require.unsupported[request->header.require.count-1].
         length = workBuf->lineLength;
 
-    request->header.require.count;
+    request->header.require.count++;
 
     return RTSP_OK;
 }
@@ -351,8 +353,6 @@ static RtspStatus parseHeader(RtspRxBuffer *workBuf, RtspRequest *request)
 
 RtspStatus parseHeaders(RtspRxBuffer *workBuf, RtspRequest *request)
 {
-    RtspStatus status = RTSP_ERROR_INTERNAL;
-
     while (workBuf->lineLength)
     {
         RTSP_TRY_RTN(parseHeader(workBuf, request));

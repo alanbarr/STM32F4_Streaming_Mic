@@ -184,14 +184,14 @@ RtspStatus rtspSessionDestroy(RtspSession *session)
         RTSP_TRY_RTN(status);
     }
 
-    memset(session, 0, sizeof(session));
+    memset(session, 0, sizeof(*session));
 
     return RTSP_OK;
 }
 
 
 RtspStatus rtspTcpTransmitCallback(RtspClientRx *client,
-                                   const uint8_t *data,
+                                   const char *data,
                                    uint16_t length)
 {
     return rtspDb.config.callback.tx(client, data, length);
@@ -338,7 +338,7 @@ static RtspStatus rtspSendErrorReply(RtspRequest *request)
     return status;
 }
 
-RtspStatus rtspFindResourceByPath(uint8_t *pathData,
+RtspStatus rtspFindResourceByPath(char *pathData,
                                   uint16_t pathLength,
                                   RtspResource **resource)
 {
@@ -387,31 +387,31 @@ RtspStatus rtspRx(RtspClientRx *client, char *buffer, uint16_t length)
 
     request.client = client;
 
-    if (status = rtspRxBufferInit(&workBuf, buffer, length))
+    if ((status = rtspRxBufferInit(&workBuf, buffer, length)))
     {
         RTSP_LOG("failed %u", status);
         goto update_stats_exit;
     }
 
-    if (status = parseRequestLine(&workBuf, &request))
+    if ((status = parseRequestLine(&workBuf, &request)))
     {
         RTSP_LOG("Failed: %s", rtspErrorString[(status)]);
         goto update_stats_exit;
     }
 
-    if (status = (rtspRxBufferIncr(&workBuf, BUFM_LINE_INCR, 0)))
+    if ((status = (rtspRxBufferIncr(&workBuf, BUFM_LINE_INCR, 0))))
     {
         RTSP_LOG("Failed: %s", rtspErrorString[(status)]);
         goto update_stats_exit;
     }
 
-    if (status = parseHeaders(&workBuf, &request))
+    if ((status = parseHeaders(&workBuf, &request)))
     {
         RTSP_LOG("Failed: %s", rtspErrorString[(status)]);
         goto update_stats_exit;
     }
 
-    if (status = rtspRxProcess(&request))
+    if ((status = rtspRxProcess(&request)))
     {
         RTSP_LOG("Failed: %s", rtspErrorString[(status)]);
         goto update_stats_exit;

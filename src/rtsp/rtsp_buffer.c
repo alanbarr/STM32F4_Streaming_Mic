@@ -28,6 +28,7 @@
 #include "rtsp.h"
 #include "rtsp_buffer.h"
 #include "rtsp_internal.h"
+#include <ctype.h>
 
 /* Assume single threaded for now. This can be changed later with syncronisation
  * protection if required. */
@@ -41,7 +42,7 @@ void rtspRxBufferDump(RtspRxBuffer *buf)
 
     while (x < MIN(buf->lineLength,20))
     {
-        if (isspace(buf->buffer[x]))
+        if (isspace((int)buf->buffer[x]))
         {
             RTSP_LOG("%02u : \' \' : 0x%02x", x, buf->buffer[x], buf->buffer[x]);
         }
@@ -71,7 +72,7 @@ static RtspStatus bufSetLineEnding(RtspRxBuffer *buf)
 }
 
 RtspStatus rtspRxBufferInit(RtspRxBuffer *buf,
-                            uint8_t *data,
+                            char *data,
                             uint16_t length)
 {
     buf->totalLength = length;

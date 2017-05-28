@@ -54,7 +54,7 @@ typedef enum {
 
 
 RtspStatus rtspRxBufferInit(RtspRxBuffer *buf,
-                            uint8_t *data,
+                            char *data,
                             uint16_t length);
 
 RtspStatus rtspRxBufferIncr(RtspRxBuffer *buf,

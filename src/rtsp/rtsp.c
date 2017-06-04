@@ -75,6 +75,33 @@ struct {
     uint32_t rtspRxInvalid;
 } stats;
 
+RtspStatus rtspLogger(const char *fmt, ...)
+{
+    RtspStatus status = RTSP_ERROR_INTERNAL;
+    va_list argList;
+
+    va_start(argList, fmt);
+    status = rtspDb.config.callback.log(fmt, argList);
+    va_end(argList);
+
+    return status;
+}
+
+int rtspSnprintf(char *dst,
+                 uint32_t size,
+                 const char *fmt,
+                 ...)
+{
+    int rtn = 0;
+    va_list argList;
+
+    va_start(argList, fmt);
+    rtn = rtspDb.config.callback.snprint(dst, size, fmt, argList);
+    va_end(argList);
+
+    return rtn;
+}
+
 RtspStatus rtspGetRandomNumber(uint32_t *random)
 {
     *random = 0xDEADBEEF;
@@ -115,10 +142,10 @@ RtspStatus rtspSessionCreate(RtspRequest *request,
 
     /* TODO XXX Check there is not a session with this same id */
 
-    snprintfRtn = snprintf((*session)->client.id.data, 
-                           sizeof((*session)->client.id.data),
-                           "%X", 
-                           rand);
+    snprintfRtn = rtspSnprintf((*session)->client.id.data, 
+                                sizeof((*session)->client.id.data),
+                                "%X", 
+                                rand);
 
     if (snprintfRtn < 0 || snprintfRtn >= RTSP_MAX_SESSION_LENGTH)
     {
@@ -316,12 +343,12 @@ static RtspStatus rtspSendErrorReply(RtspRequest *request)
 
     RTSP_TRY_RTN(rtspWriteBufferGet(&responseBuf, &responseBufLen));
 
-    stringLength = snprintf(responseBuf,
-                            responseBufLen,
-                            "RTSP/1.0 %s %s %s",
-                            rtspProtocolErrorString[request->response.error],
-                            RTSP_EOL_STR,
-                            RTSP_EOL_STR);
+    stringLength = rtspSnprintf(responseBuf,
+                                responseBufLen,
+                                "RTSP/1.0 %s %s %s",
+                                rtspProtocolErrorString[request->response.error],
+                                RTSP_EOL_STR,
+                                RTSP_EOL_STR);
 
     if (stringLength >= responseBufLen || stringLength < 0)
     {
@@ -338,7 +365,7 @@ static RtspStatus rtspSendErrorReply(RtspRequest *request)
     return status;
 }
 
-RtspStatus rtspFindResourceByPath(char *pathData,
+RtspStatus rtspFindResourceByPath(const char *pathData,
                                   uint16_t pathLength,
                                   RtspResource **resource)
 {
@@ -348,6 +375,13 @@ RtspStatus rtspFindResourceByPath(char *pathData,
     if (pathLength >= 1 && pathData[pathLength-1] == '/')
     {
         pathLength -= 1;
+    }
+
+    /* Ignore leading `/` on path */
+    if (pathLength >= 1 && pathData[0] == '/')
+    {
+        pathLength -= 1;
+        pathData   +=1;
     }
 
     for (resourceIdx = 0; resourceIdx < RTSP_MAX_RESOURCES; resourceIdx++)

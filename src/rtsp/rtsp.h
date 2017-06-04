@@ -166,6 +166,7 @@ typedef struct {
         uint16_t length;
     } path;
 
+    uint16_t localPort;
     uint16_t serverPortRange[2];
 
     struct {
@@ -238,10 +239,20 @@ typedef RtspStatus (*rtspTcpTransmit)(RtspClientRx *client,
 typedef RtspStatus (*rtspSessionControl)(RtspSession *session,
                                          RtspSessionInstruction instruction);
 
+
+typedef RtspStatus (*rtspLog)(const char *fmt, va_list ap);
+
+typedef int (*rtspSnprint)(char *dst,
+                           uint32_t size,
+                           const char *fmt,
+                           va_list ap);
+
 typedef struct {
     struct {
         rtspTcpTransmit tx;
         rtspSessionControl control;
+        rtspLog log;
+        rtspSnprint snprint;
     } callback;
 } RtspConfig;
 

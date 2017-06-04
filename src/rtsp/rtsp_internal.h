@@ -33,8 +33,16 @@
 
 #define RTSP_SERVER_STRING "Server: MinimalRTSPServer/0.1\r\n"
 
+
+#if 0
 #define RTSP_LOG(STR, ...) printf("(%s: %d) " STR "\n", \
                                   __FILE__, __LINE__, __VA_ARGS__)
+#else
+
+#define RTSP_LOG(STR,...) rtspLogger("(%s: %d) " STR "\n", \
+                                  __FILE__, __LINE__, __VA_ARGS__)
+
+#endif
 
 #define RTSP_LOG_AND_RTN(STATUS) \
         RTSP_LOG("Status: %s", rtspErrorString[(STATUS)]);\
@@ -146,7 +154,7 @@ RtspStatus rtspSessionFind(RtspRequest *request,
                            RtspSession **session);
 RtspStatus rtspSessionDestroy(RtspSession *session);
 
-RtspStatus rtspFindResourceByPath(char *pathData,
+RtspStatus rtspFindResourceByPath(const char *pathData,
                                   uint16_t pathLength,
                                   RtspResource **resource);
 

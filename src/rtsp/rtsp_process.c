@@ -44,7 +44,7 @@ static RtspStatus rtspRxProcessDescribeSendResponse(RtspRequest *request,
         RTSP_LOG_AND_RTN(RTSP_ERROR_INVALID);
     }
 
-    stringLength = snprintf(responseBuf, 
+    stringLength = rtspSnprintf(responseBuf, 
                             responseBufLen,
                             "RTSP/1.0 200 OK"               RTSP_EOL_STR
                             RTSP_SERVER_STRING
@@ -72,7 +72,7 @@ static RtspStatus rtspRxProcessDescribeSendResponse(RtspRequest *request,
     stringLength += request->header.cseq.length + RTSP_EOL_LEN;
 
     /* Add in extra EOL */
-    stringLength += snprintf(&responseBuf[stringLength],
+    stringLength += rtspSnprintf(&responseBuf[stringLength],
                              responseBufLen,
                              RTSP_EOL_STR);
 
@@ -142,7 +142,7 @@ static RtspStatus rtspRxProcessSetupSendResponse(RtspRequest *request,
         return RTSP_ERROR_INVALID;
     }
 
-    stringLength = snprintf(responseBuf,
+    stringLength = rtspSnprintf(responseBuf,
                             responseBufLen,
                             "RTSP/1.0 200 OK" RTSP_EOL_STR
                             RTSP_SERVER_STRING);
@@ -176,7 +176,7 @@ static RtspStatus rtspRxProcessSetupSendResponse(RtspRequest *request,
         RTSP_LOG_AND_RTN(RTSP_ERROR_INTERNAL);
     }
 
-    stringLength += snprintf(&responseBuf[stringLength],
+    stringLength += rtspSnprintf(&responseBuf[stringLength],
                              responseBufLen-stringLength,
                              "%s",
                              rtspHeaderStrings[RTSP_HEADER_SESSION]);
@@ -190,7 +190,7 @@ static RtspStatus rtspRxProcessSetupSendResponse(RtspRequest *request,
     stringLength += RTSP_EOL_LEN;
 
     /* Add in Other headers */
-    stringLength += snprintf(&responseBuf[stringLength],
+    stringLength += rtspSnprintf(&responseBuf[stringLength],
                              responseBufLen - stringLength,
                              "Transport: RTP/AVP;unicast;client_port=%u-%u;"
                              "server_port=%u-%u" 

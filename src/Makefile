@@ -120,6 +120,7 @@ CSRC = $(STARTUPSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
        $(CHIBIOS)/os/various/evtimer.c \
+       $(CHIBIOS)/os/various/memstreams.c \
        $(LWSRC) \
        $(CMSIS)/DSP_Lib/Source/FilteringFunctions/arm_fir_decimate_init_f32.c \
        $(CMSIS)/DSP_Lib/Source/FilteringFunctions/arm_fir_decimate_f32.c \
@@ -127,6 +128,7 @@ CSRC = $(STARTUPSRC) \
        audio/autogen_fir_coeffs.c      \
        rtp/rtp.c                       \
        rtp/rtcp.c                      \
+	   rtsp_to_rtp_interface.c         \
 	   $(RTSP_CSRC)                    \
        utils/debug.c                   \
        mp45dt02_processing.c           \

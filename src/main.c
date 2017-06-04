@@ -34,13 +34,16 @@
 #include "lwip/err.h"
 #include "time_mgmt.h"
 #include "random.h"
+#include "rtsp_to_rtp_interface.h"
 
 #define IP(A,B,C,D)             htonl(A<<24 | B<<16 | C<<8 | D)
 #define LAN8720_IPADDR          IP(192, 168, 1, 60)
 #define LAN8720_GATEWAY         IP(192, 168, 1, 254)
 #define LAN8720_NETMASK         IP(255, 255, 255, 0)
 
-#define LOCAL_PORT              50001
+#define RTSP_PORT_LOCAL         20000
+#define RTP_PORT_LOCAL_0        25001
+#define RTP_PORT_LOCAL_1        25002
 
 static THD_WORKING_AREA(waBinkingThread, 128);
 static THD_FUNCTION(blinkingThread, arg) 
@@ -54,9 +57,117 @@ static THD_FUNCTION(blinkingThread, arg)
     }
 }
 
+#if 0
+void echoServer(void)
+{
+    StatusCode rtn = STATUS_OK;
+    struct netconn *serverConn = NULL;
+    struct netconn *clientConn = NULL;
+    struct netbuf *recvBuf = NULL;
+    char *recvData = NULL;
+    uint16_t recvLength = 0;
+    uint16_t port = 10000;
+
+    /* Create the socket */
+    serverConn = netconn_new(NETCONN_TCP);
+
+    if (serverConn == NULL)
+    {
+        chThdExit(STATUS_ERROR_LIBRARY_LWIP);
+    }
+
+    /* Bind the socket */
+    if (ERR_OK != netconn_bind(serverConn,
+                               IP_ADDR_ANY,
+                               port))
+    {
+        rtn = STATUS_ERROR_LIBRARY_LWIP;
+        goto server_socket_close;
+    }
+
+    /* Listen for incomming connections */
+    if (ERR_OK != netconn_listen(serverConn))
+    {
+        rtn = STATUS_ERROR_LIBRARY_LWIP;
+        goto server_socket_close;
+    }
+
+    while (1)
+    {
+        PRINT("About to accept. hopefully bound to %u", port);
+        if (ERR_OK != netconn_accept(serverConn, &clientConn))
+        {
+            rtn = STATUS_ERROR_LIBRARY_LWIP;
+            goto server_socket_close;
+        }
+
+        PRINT("after accept", 0);
+
+        if (clientConn == NULL)
+        {
+            rtn = STATUS_ERROR_LIBRARY_LWIP;
+            goto server_socket_close;
+        }
+
+        if (ERR_OK != netconn_recv(clientConn, &recvBuf))
+        {
+            rtn = STATUS_ERROR_LIBRARY_LWIP;
+            goto client_socket_close;
+        }
+
+        if (recvBuf == NULL)
+        {
+            rtn = STATUS_ERROR_LIBRARY_LWIP;
+            goto client_socket_close;
+        }
+
+        if (ERR_OK != netbuf_data(recvBuf, (void**)&recvData, &recvLength))
+        {
+
+        }
+
+        PRINT("got a message - %s",recvData);
+
+        netbuf_delete(recvBuf);
+
+        if (ERR_OK != netconn_close(clientConn))
+        {
+
+        }
+        clientConn = NULL;
+
+    client_socket_close:
+        if (clientConn)
+        {
+            if (ERR_OK != netconn_close(clientConn))
+            {
+                rtn = STATUS_ERROR_LIBRARY_LWIP;
+            }
+        }
+
+        if (rtn != STATUS_OK)
+        {
+            break;
+        }
+    }
+
+
+server_socket_close:
+    /* Close the socket */
+    if (ERR_OK != netconn_close(serverConn))
+    {
+
+    }
+
+    chThdExit(rtn);
+}
+#endif
+
+
 int main(void) 
 {
     struct lwipthread_opts opts;
+    RtspRtpSessionData rtspData;
     uint8_t optsMAC[6] = {LAN8720_ETHADDR_0,
                           LAN8720_ETHADDR_1,
                           LAN8720_ETHADDR_2,
@@ -84,12 +195,26 @@ int main(void)
 
     SC_ASSERT(randomInit());
 
-    while(macPollLinkStatus(&ETHD1) == false)
+#if 0
+    while (1)
+    {
+        echoServer();
+    }
+#endif
+
+    while (macPollLinkStatus(&ETHD1) == false)
     {
         chThdSleep(1);
     }
 
-#if 1
+    strcpy(rtspData.sessionName, "audio");
+    rtspData.localIp         = LAN8720_IPADDR;
+    rtspData.rtspLocalPort   = RTSP_PORT_LOCAL;
+    rtspData.rtpLocalPort[0] = RTP_PORT_LOCAL_0;
+    rtspData.rtpLocalPort[1] = RTP_PORT_LOCAL_1;
+    SC_ASSERT(rtspRtpSessionStart(&rtspData));
+
+#if 0
     SC_ASSERT(timeInit());
     SC_ASSERT(timeNtpUpdate());
 

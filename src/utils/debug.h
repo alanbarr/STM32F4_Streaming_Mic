@@ -92,6 +92,8 @@ typedef enum
     STATUS_ERROR_OS,
     /* Library returned error */
     STATUS_ERROR_LIBRARY,
+    /* LWIP Library returned error */
+    STATUS_ERROR_LIBRARY_LWIP,
     /* Error interfacing with HW */
     STATUS_ERROR_HW,
     /* Unexpected timeout */

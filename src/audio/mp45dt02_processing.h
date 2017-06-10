@@ -77,7 +77,14 @@
 #define MP45DT02_DECIMATED_BUFFER_SIZE      (MP45DT02_EXPANDED_BUFFER_SIZE / \
                                              MP45DT02_FIR_DECIMATION_FACTOR)
 
-void mp45dt02Init(void);
+typedef void (*mp45dt02FullBufferCb) (uint16_t *data, uint16_t length);
+
+typedef struct {
+    /* Callback function to be notified when the processing buffer is full. */
+    mp45dt02FullBufferCb fullbufferCb;
+} mp45dt02Config;
+
+void mp45dt02Init(mp45dt02Config *config);
 void mp45dt02Shutdown(void);
 
 

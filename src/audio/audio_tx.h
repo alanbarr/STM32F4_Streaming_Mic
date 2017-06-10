@@ -28,8 +28,23 @@
 #define __AUDIO_TX_H__
 
 #include <stdint.h>
+#include "lwip/ip_addr.h"
+
+typedef struct {
+    /* API */
+    ip_addr_t ipDest;
+    uint16_t localRtpPort;
+    uint16_t localRtcpPort;
+    uint16_t remoteRtpPort;
+    uint16_t remoteRtcpPort;
+} audioTxRtpConfig;
+
 
 void audioTxInit(void);
+void audioTxRtpSetup(audioTxRtpConfig *setupConfig);
+void audioTxRtpTeardown(void);
+void audioTxRtpPlay(void);
+void audioTxRtpPause(void);
 
 
 #endif /* Header Guard */

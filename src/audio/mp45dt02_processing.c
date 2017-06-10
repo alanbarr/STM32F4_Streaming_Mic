@@ -85,6 +85,8 @@ static I2SConfig mp45dt02I2SConfig;
 static float32_t mp45dt02ExpandedBuffer[MP45DT02_EXPANDED_BUFFER_SIZE];
 static uint16_t mp45dt02DecimatedBuffer[MP45DT02_DECIMATED_BUFFER_SIZE];
 
+static mp45dt02Config initConfig;
+
 /* 
  * outBuffer: Array of floats, where each element is derived from an input in
  *            inBuffer.
@@ -169,8 +171,8 @@ static THD_FUNCTION(mp45dt02ProcessingThd, arg)
         /**********************************************************************/ 
         /* Notify of new data                                                 */
         /**********************************************************************/ 
-        audioTxHandleFullMp45dt02Buffer(mp45dt02DecimatedBuffer,
-                                        sizeof(mp45dt02DecimatedBuffer));
+        initConfig.fullbufferCb(mp45dt02DecimatedBuffer, 
+                                 sizeof(mp45dt02DecimatedBuffer));
 
         if (mp45dt02I2sData.guard != MEMORY_GUARD)
         {
@@ -214,7 +216,7 @@ static void dspInit(void)
     }
 }
 
-void mp45dt02Init(void)
+void mp45dt02Init(mp45dt02Config *config)
 {
     PRINT("Initialising mp45dt02.\n\r"
           "mp45dt02I2sData.buffer size: %u words %u bytes\n\r"
@@ -223,6 +225,8 @@ void mp45dt02Init(void)
           MP45DT02_I2S_BUFFER_SIZE_2B, sizeof(mp45dt02I2sData.buffer),
           MP45DT02_EXPANDED_BUFFER_SIZE, sizeof(mp45dt02ExpandedBuffer),
           MP45DT02_DECIMATED_BUFFER_SIZE);
+
+    initConfig = *config;
 
     chSemObjectInit(&mp45dt02ProcessingSem, 0);
 
@@ -233,11 +237,10 @@ void mp45dt02Init(void)
 
     dspInit();
 
-    memset(&mp45dt02I2SConfig, 0, sizeof(mp45dt02I2SConfig));
-
     memset(&mp45dt02I2sData, 0, sizeof(mp45dt02I2sData));
     mp45dt02I2sData.guard = MEMORY_GUARD;
 
+    memset(&mp45dt02I2SConfig, 0, sizeof(mp45dt02I2SConfig));
     mp45dt02I2SConfig.tx_buffer = NULL;
     mp45dt02I2SConfig.rx_buffer = mp45dt02I2sData.buffer;
     mp45dt02I2SConfig.size      = MP45DT02_I2S_BUFFER_SIZE_2B;
@@ -260,8 +263,8 @@ void mp45dt02Shutdown(void)
     i2sStop(&MP45DT02_I2S_DRIVER);
 
     chThdTerminate(pMp45dt02ProcessingThd);
-    chThdWait(pMp45dt02ProcessingThd);
     chSemReset(&mp45dt02ProcessingSem, 1);
+    chThdWait(pMp45dt02ProcessingThd);
     pMp45dt02ProcessingThd = NULL;
 }
 

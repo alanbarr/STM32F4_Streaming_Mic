@@ -54,13 +54,11 @@
 
 #define IP(A,B,C,D)                         htonl(A<<24 | B<<16 | C<<8 | D)
 
+
 typedef struct {
+
     /* API */
-    ip_addr_t ipDest;
-    uint16_t localRtpPort;
-    uint16_t localRtcpPort;
-    uint16_t remoteRtpPort;
-    uint16_t remoteRtcpPort;
+    audioTxRtpConfig config;
 
     /* Private */
     struct netconn *connRtp;
@@ -107,13 +105,13 @@ static rtpStatus audioRtpTransmitCb(const rtpSession *session,
 
     if (type == RTP_MSG_TYPE_DATA)
     {
-        udpConn = txData->connRtp;
-        remotePort = txData->remoteRtpPort;
+        udpConn    = txData->connRtp;
+        remotePort = txData->config.remoteRtpPort;
     }
     else if (type == RTP_MSG_TYPE_CONTROL)
     {
-        udpConn = txData->connRtcp;
-        remotePort = txData->remoteRtcpPort;
+        udpConn    = txData->connRtcp;
+        remotePort = txData->config.remoteRtcpPort;
     }
     else
     {
@@ -122,7 +120,7 @@ static rtpStatus audioRtpTransmitCb(const rtpSession *session,
 
     if (ERR_OK != (lwipErr = netconn_sendto(udpConn,
                                             lwipBuffer,
-                                            &txData->ipDest,
+                                            &txData->config.ipDest,
                                             remotePort)))
     {
         return RTP_ERROR_CB;
@@ -195,222 +193,8 @@ static rtpStatus audioRtpLog(const char *fmt, va_list argList)
     return RTP_OK;
 }
 
-void audioTxInit(void)
-{
-    rtpConfig config;
-
-    memset(&config, 0, sizeof(config));
-
-    config.txCb        = audioRtpTransmitCb;
-    config.bufAllocCb  = audioRtpControlBufAllocCb;
-    config.bufFreeCb   = audioRtpControlBufFreeCb;
-    config.getNtpCb    = audioRtpGetNtpTimestampCb;
-    config.getRandomCb = audioRtpGetRandomCb;
-    config.logCb       = audioRtpLog;
-
-    if (RTP_OK != rtpInit(&config))
-    {
-        /* AB TODO XXX */
-        while(1);
-    }
-
-    chMBObjectInit(&audioRxData.readyMailbox,
-                   audioRxData.readyMsgs,
-                   RX_READY_CONNECTION_NUM);
-}
-
-static THD_FUNCTION(audioRxThreadFunc, arg) 
-{
-    (void)arg;
-
-    err_t lwipErr = ERR_OK;
-    struct netconn *rxConn = NULL;
-    struct netbuf *udpRecvBuf = NULL;
-    ip_addr_t *remoteIp = NULL;
-    uint16_t remotePort = 0;
-    uint32_t rxDataLength = 0;
-    uint8_t *rxData = NULL;
-    rtpSession *rtpSession = NULL;
-
-    chRegSetThreadName(__FUNCTION__);
-
-    while (TRUE) 
-    {
-        chMBFetch(&audioRxData.readyMailbox,
-                  (msg_t *)&rxConn,
-                  TIME_INFINITE);
-
-        if (chThdShouldTerminateX())
-        {
-            return;
-        }
-
-        BOARD_LED_GREEN_TOGGLE();
-
-        if (ERR_OK != (lwipErr = netconn_recv(rxConn, &udpRecvBuf)))
-        {
-
-        }
-
-        remoteIp     = netbuf_fromaddr(udpRecvBuf);
-        remotePort   = netbuf_fromport(udpRecvBuf);
-        rxDataLength = netbuf_len(udpRecvBuf);
-
-        if (remotePort == activeAudioSession.localRtpPort)
-        {
-            if (RTP_OK != rtpRxData(rtpSession,
-                                    rxData,
-                                    rxDataLength))
-             {
-
-             }
-
-        }
-        else if (remotePort == activeAudioSession.localRtcpPort)
-        {
-            if (RTP_OK != rtpRxControl(rtpSession,
-                                       rxData,
-                                       rxDataLength))
-            {
-
-            }
-
-        }
-        else
-        {
-
-        }
-
-        netbuf_delete(udpRecvBuf);
-    }
-}
-
-static void audioTxLwipCb(struct netconn *conn, 
-                          enum netconn_evt event,
-                          u16_t len)
-{
-    (void)len;
-
-    PRINT("event is %u", event);
-    if (event == NETCONN_EVT_RCVMINUS)
-    {
-        chMBPost(&audioRxData.readyMailbox, (msg_t)conn, TIME_INFINITE);
-    }
-}
-
-
-void audioTxStart(void)
-{
-    rtpSession config;
-    err_t lwipErr = ERR_OK;
-#if 1
-    const char *const cname = "192.168.50.60";
-#else
-    const char *const cname = "outChannel";
-#endif
-
-    /* AB TODO */
-    activeAudioSession.ipDest.addr    = IP(192,168,1,154);
-    activeAudioSession.localRtpPort   = 4200;
-    activeAudioSession.localRtcpPort  = 4201;
-    activeAudioSession.remoteRtpPort  = 6000;
-    activeAudioSession.remoteRtcpPort = 6001;
-
-    if (NULL == (activeAudioSession.connRtp = 
-                        netconn_new_with_proto_and_callback(
-                                        NETCONN_UDP,
-                                        0,
-                                        audioTxLwipCb)))
-    {
-        DEBUG_CRITICAL("RTP UDP Netconn failed",0);
-    }
-    
-    if (ERR_OK != (lwipErr = netconn_bind(activeAudioSession.connRtp,
-                                          IP_ADDR_ANY,
-                                          activeAudioSession.localRtpPort)))
-    {
-        DEBUG_CRITICAL("RTP UDP Bind Failed LWIP Error: %d", lwipErr);
-    }
-
-    if (NULL == (activeAudioSession.connRtcp = 
-                    netconn_new_with_proto_and_callback(
-                                        NETCONN_UDP,
-                                        0,
-                                        audioTxLwipCb)))
-    {
-        DEBUG_CRITICAL("RTCP UDP Netconn failed",0);
-    }
-    
-    if (ERR_OK !=(lwipErr = netconn_bind(activeAudioSession.connRtcp,
-                                         IP_ADDR_ANY,
-                                         activeAudioSession.localRtcpPort)))
-    {
-        DEBUG_CRITICAL("RTCP UDP Bind Failed LWIP Error: %d", lwipErr);
-    }
-
-    memset(&config, 0, sizeof(config));
-
-    config.userData              = (void*)&activeAudioSession;
-    config.periodicTimestampIncr = 16000 / 1000 * 20;
-
-    config.cname.length = strlen(cname);
-    memcpy(config.cname.text, cname, config.cname.length);
-
-    if (RTP_OK != rtpSessionInit(&config, &(activeAudioSession.rtpSessionHandle)))
-    {
-        DEBUG_CRITICAL("RTP Init Failed",0);
-    }
-
-#if 0
-    /* AB TODO  Dont like buffer mgmt */
-    mp45dt02Init();
-#endif
-#if 0
-    audioRxData.thread = chThdCreateStatic(audioRxData.threadWa, 
-                                           sizeof(audioRxData.threadWa),
-                                           LOWPRIO,
-                                           audioRxThreadFunc,
-                                           &activeAudioSession);
-#endif
-
-#if 0
-
-    struct netbuf *buf = NULL;
-    uint8_t *data = NULL;
-
-    while (1)
-    {
-        buf = netbuf_new();
-        data = netbuf_alloc(buf, 400);
-        BOARD_LED_BLUE_TOGGLE();
-
-        lwipErr = netconn_sendto(activeAudioSession.connRtp,
-                                                buf,
-                                                &activeAudioSession.ipDest,
-                                                20000);
-        netbuf_delete(buf);
-    }
-
-#endif
-}
-
-void audioTxStop(void)
-{
-    mp45dt02Shutdown();
-
-    if (RTP_OK != rtpSessionShutdown(activeAudioSession.rtpSessionHandle))
-    {
-        while(1);
-    }
-
-    if (ERR_OK != (netconn_delete(activeAudioSession.connRtp)))
-    {
-        while(1);
-    }
-}
-
-void audioTxHandleFullMp45dt02Buffer(uint16_t *data,
-                                     uint16_t length)       
+static void audioTxHandleFullMp45dt02Buffer(uint16_t *data,
+                                            uint16_t length)       
 {
     uint32_t index = 0;
     uint16_t *sample = NULL;
@@ -495,6 +279,232 @@ void audioTxHandleFullMp45dt02Buffer(uint16_t *data,
 
     return;
 }
+
+
+static THD_FUNCTION(audioRxThreadFunc, arg) 
+{
+    (void)arg;
+
+    err_t lwipErr = ERR_OK;
+    struct netconn *rxConn = NULL;
+    struct netbuf *udpRecvBuf = NULL;
+    ip_addr_t *remoteIp = NULL;
+    uint16_t remotePort = 0;
+    uint32_t rxDataLength = 0;
+    uint8_t *rxData = NULL;
+    rtpSession *rtpSession = NULL;
+
+    chRegSetThreadName(__FUNCTION__);
+
+    while (TRUE) 
+    {
+        chMBFetch(&audioRxData.readyMailbox,
+                  (msg_t *)&rxConn,
+                  TIME_INFINITE);
+
+        if (chThdShouldTerminateX())
+        {
+            return;
+        }
+
+        BOARD_LED_GREEN_TOGGLE();
+
+        if (ERR_OK != (lwipErr = netconn_recv(rxConn, &udpRecvBuf)))
+        {
+
+        }
+
+        remoteIp     = netbuf_fromaddr(udpRecvBuf);
+        remotePort   = netbuf_fromport(udpRecvBuf);
+        rxDataLength = netbuf_len(udpRecvBuf);
+
+        if (remotePort == activeAudioSession.config.localRtpPort)
+        {
+            if (RTP_OK != rtpRxData(rtpSession,
+                                    rxData,
+                                    rxDataLength))
+             {
+
+             }
+
+        }
+        else if (remotePort == activeAudioSession.config.localRtcpPort)
+        {
+            if (RTP_OK != rtpRxControl(rtpSession,
+                                       rxData,
+                                       rxDataLength))
+            {
+
+            }
+
+        }
+        else
+        {
+
+        }
+
+        netbuf_delete(udpRecvBuf);
+    }
+}
+
+static void audioTxLwipCb(struct netconn *conn, 
+                          enum netconn_evt event,
+                          u16_t len)
+{
+    (void)len;
+
+    PRINT("event is %u", event);
+    if (event == NETCONN_EVT_RCVMINUS)
+    {
+        chMBPost(&audioRxData.readyMailbox, (msg_t)conn, TIME_INFINITE);
+    }
+}
+
+void audioTxInit(void)
+{
+    rtpConfig config;
+
+    memset(&config, 0, sizeof(config));
+
+    config.txCb        = audioRtpTransmitCb;
+    config.bufAllocCb  = audioRtpControlBufAllocCb;
+    config.bufFreeCb   = audioRtpControlBufFreeCb;
+    config.getNtpCb    = audioRtpGetNtpTimestampCb;
+    config.getRandomCb = audioRtpGetRandomCb;
+    config.logCb       = audioRtpLog;
+
+    if (RTP_OK != rtpInit(&config))
+    {
+        /* AB TODO XXX */
+        while(1);
+    }
+
+    chMBObjectInit(&audioRxData.readyMailbox,
+                   audioRxData.readyMsgs,
+                   RX_READY_CONNECTION_NUM);
+}
+
+void audioTxShutdown(void)
+{
+    /* Mailbox */
+    /* RTP */
+}
+
+
+void audioTxRtpSetup(audioTxRtpConfig *setupConfig)
+{
+    rtpSession config;
+    err_t lwipErr = ERR_OK;
+#if 1
+    const char *const cname = "192.168.50.60";
+#else
+    const char *const cname = "outChannel";
+#endif
+
+    activeAudioSession.config = *setupConfig;
+
+    if (NULL == (activeAudioSession.connRtp = 
+                        netconn_new_with_proto_and_callback(
+                                        NETCONN_UDP,
+                                        0,
+                                        audioTxLwipCb)))
+    {
+        DEBUG_CRITICAL("RTP UDP Netconn failed",0);
+    }
+    
+    if (ERR_OK != (lwipErr = netconn_bind(activeAudioSession.connRtp,
+                                          IP_ADDR_ANY,
+                                          activeAudioSession.config.localRtpPort)))
+    {
+        DEBUG_CRITICAL("RTP UDP Bind Failed LWIP Error: %d", lwipErr);
+    }
+
+    if (NULL == (activeAudioSession.connRtcp = 
+                    netconn_new_with_proto_and_callback(
+                                        NETCONN_UDP,
+                                        0,
+                                        audioTxLwipCb)))
+    {
+        DEBUG_CRITICAL("RTCP UDP Netconn failed",0);
+    }
+    
+    if (ERR_OK !=(lwipErr = netconn_bind(activeAudioSession.connRtcp,
+                                         IP_ADDR_ANY,
+                                         activeAudioSession.config.localRtcpPort)))
+    {
+        DEBUG_CRITICAL("RTCP UDP Bind Failed LWIP Error: %d", lwipErr);
+    }
+
+    memset(&config, 0, sizeof(config));
+
+    config.userData              = (void*)&activeAudioSession;
+    config.periodicTimestampIncr = 16000 / 1000 * 20;
+
+    config.cname.length = strlen(cname);
+    memcpy(config.cname.text, cname, config.cname.length);
+
+    if (RTP_OK != rtpSessionInit(&config, &(activeAudioSession.rtpSessionHandle)))
+    {
+        DEBUG_CRITICAL("RTP Init Failed",0);
+    }
+
+#if 0
+    audioRxData.thread = chThdCreateStatic(audioRxData.threadWa, 
+                                           sizeof(audioRxData.threadWa),
+                                           LOWPRIO,
+                                           audioRxThreadFunc,
+                                           &activeAudioSession);
+#endif
+
+#if 0
+
+    struct netbuf *buf = NULL;
+    uint8_t *data = NULL;
+
+    while (1)
+    {
+        buf = netbuf_new();
+        data = netbuf_alloc(buf, 400);
+        BOARD_LED_BLUE_TOGGLE();
+
+        lwipErr = netconn_sendto(activeAudioSession.connRtp,
+                                                buf,
+                                                &activeAudioSession.ipDest,
+                                                20000);
+        netbuf_delete(buf);
+    }
+
+#endif
+}
+
+void audioTxRtpTeardown(void)
+{
+    mp45dt02Shutdown();
+
+    if (RTP_OK != rtpSessionShutdown(activeAudioSession.rtpSessionHandle))
+    {
+        while(1);
+    }
+
+    if (ERR_OK != (netconn_delete(activeAudioSession.connRtp)))
+    {
+        while(1);
+    }
+}
+
+void audioTxRtpPlay(void)
+{
+    mp45dt02Config micConfig;
+    memset(&micConfig, 0, sizeof(micConfig));
+    micConfig.fullbufferCb = audioTxHandleFullMp45dt02Buffer;
+    mp45dt02Init(&micConfig);
+}
+
+void audioTxRtpPause(void)
+{
+    mp45dt02Shutdown();
+}
+
 
 
 

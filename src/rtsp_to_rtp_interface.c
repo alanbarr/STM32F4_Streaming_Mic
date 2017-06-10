@@ -37,6 +37,10 @@
 #include "hal.h"
 #include "chprintf.h"
 #include "memstreams.h"
+#include "audio_tx.h"
+
+#define IP(A,B,C,D)                         htonl(A<<24 | B<<16 | C<<8 | D)
+
 
 static struct {
     THD_WORKING_AREA(wa, 4096);
@@ -101,6 +105,18 @@ static RtspStatus rtspHandlerControl(RtspSession *session,
     {
         case RTSP_SESSION_CREATE:
             string = "create";
+            audioTxRtpConfig config;
+            memset(&config, 0, sizeof(config));
+
+            /* AB TODO */
+            config.ipDest.addr    = IP(192,168,1,154);
+            config.localRtpPort   = 4200;
+            config.localRtcpPort  = 4201;
+            config.remoteRtpPort  = 6000;
+            config.remoteRtcpPort = 6001;
+
+            audioTxRtpSetup(&config);
+
             break;
         case RTSP_SESSION_PLAY:
             string = "play";
